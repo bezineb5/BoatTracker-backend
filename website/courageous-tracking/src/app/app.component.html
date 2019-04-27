@@ -1,0 +1,40 @@
+<div class="main-container">
+  <mat-toolbar color="primary">
+    <button mat-icon-button (click)="snav.toggle()">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <h1 class="app-name">Courageous Tracking App</h1>
+    <button mat-icon-button (click)="centerHome()">
+      <mat-icon>home</mat-icon>
+    </button>
+    <button mat-icon-button (click)="refresh()">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </mat-toolbar>
+  <mat-sidenav-container class="main-sidenav-container">
+    <mat-sidenav #snav mode="side" opened="true">
+      <mat-tab-group>
+        <mat-tab label="Boats">
+          <mat-list>
+            <mat-list-item *ngFor="let item of inventory">{{item.name}}
+              <mat-chip-list>
+                <mat-chip *ngIf="!assignations.has(item.id)" (click)="assignItem(item.id)">Available</mat-chip>
+                <mat-chip *ngIf="assignations.has(item.id) && !assignations.get(item.id).checkedOut"
+                  (click)="releaseItem(item.id)" selected color="warn">Checking out</mat-chip>
+                <mat-chip *ngIf="assignations.has(item.id) && assignations.get(item.id).checkedOut"
+                  (click)="releaseItem(item.id)" selected color="accent">Checked out</mat-chip>
+              </mat-chip-list>
+            </mat-list-item>
+          </mat-list>
+        </mat-tab>
+        <mat-tab label="Sailors">
+          <h1>TODO</h1>
+        </mat-tab>
+      </mat-tab-group>
+    </mat-sidenav>
+    <mat-sidenav-content>
+      <div class="map" leaflet [leafletOptions]="mapOptions" [(leafletCenter)]="mapCenter" [leafletLayers]="mapMarkers">
+      </div>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>

@@ -1,0 +1,461 @@
+swagger: "2.0"
+info:
+  description: "Courageous Sailing tracking API."
+  version: "1.0.0"
+  title: "Courageous Tracking"
+  contact:
+    email: "apiteam@swagger.io"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+basePath: "/Prod"
+tags:
+- name: "items"
+  description: "Inventory management"
+- name: "assignations"
+  description: "Assignations of items to users"
+- name: "locations"
+  description: "Location tracking of items"
+- name: "users"
+  description: "Operations allowed to end-users"
+schemes:
+- "https"
+- "http"
+paths:
+  /items:
+    get:
+      tags:
+      - "items"
+      summary: "Get all items"
+      description: "Returns all item of the inventory"
+      operationId: "getAllItems"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/InventoryItem"
+      security:
+      - courageous_auth:
+        - "read:pets"
+    post:
+      tags:
+      - "items"
+      summary: "Add a new item to the inventory"
+      description: ""
+      operationId: "addItem"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Item object that needs to be added to the inventory"
+        required: true
+        schema:
+          $ref: "#/definitions/InventoryItem"
+      responses:
+        400:
+          description: "Invalid input"
+      security:
+      - courageous_auth:
+        - "write:pets"
+  /items/{itemId}:
+    get:
+      tags:
+      - "items"
+      summary: "Find item by ID"
+      description: "Returns a single item"
+      operationId: "getItemById"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "itemId"
+        in: "path"
+        description: "ID of item to return"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/InventoryItem"
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "Item not found"
+      security:
+      - courageous_auth:
+        - "read:pets"
+    delete:
+      tags:
+      - "items"
+      summary: "Deletes a pet"
+      description: ""
+      operationId: "deleteItem"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "itemId"
+        in: "path"
+        description: "ID of item to delete"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "Item not found"
+      security:
+      - courageous_auth:
+        - "write:pets"
+  /assignations:
+    get:
+      tags:
+      - "assignations"
+      summary: "Get all assignations"
+      description: ""
+      operationId: "getAllAssignations"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Assignation"
+      security:
+      - courageous_auth:
+        - "read:pets"
+    post:
+      tags:
+      - "assignations"
+      summary: "Add a new assignations to an item"
+      description: ""
+      operationId: "addAssignation"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Item object that needs to be added to the inventory"
+        required: true
+        schema:
+          $ref: "#/definitions/Assignation"
+      responses:
+        400:
+          description: "Invalid input"
+      security:
+      - courageous_auth:
+        - "write:pets"
+  /assignations/{itemId}:
+    get:
+      tags:
+      - "assignations"
+      summary: "Find assignation by item ID"
+      description: "Returns a single item"
+      operationId: "getAssignationById"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "itemId"
+        in: "path"
+        description: "ID of item to return"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Assignation"
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "Item not found"
+      security:
+      - courageous_auth:
+        - "read:pets"
+    delete:
+      tags:
+      - "assignations"
+      summary: "Deletes an assignation"
+      description: ""
+      operationId: "deleteAssignation"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "itemId"
+        in: "path"
+        description: "ID of item whose assignation is to delete"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "Item not found"
+      security:
+      - courageous_auth:
+        - "write:pets"
+  /locations:
+    get:
+      tags:
+      - "locations"
+      summary: "Get all item locations"
+      description: ""
+      operationId: "getAllLocations"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Location"
+      security:
+      - courageous_auth:
+        - "read:pets"
+  /locations/{itemId}:
+    get:
+      tags:
+      - "locations"
+      summary: "Find location by item ID"
+      description: "Returns a single item"
+      operationId: "getLocationById"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "itemId"
+        in: "path"
+        description: "ID of item to return"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Location"
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "Item not found"
+      security:
+      - courageous_auth:
+        - "read:pets"
+    delete:
+      tags:
+      - "locations"
+      summary: "Deletes a location"
+      description: ""
+      operationId: "deleteLocation"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "itemId"
+        in: "path"
+        description: "ID of item whose assignation is to delete"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "Item not found"
+      security:
+      - courageous_auth:
+        - "write:pets"
+  /users/{secret}/item:
+    get:
+      tags:
+      - "users"
+      summary: "Get the item linked to the secret"
+      description: ""
+      operationId: "assignedItem"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "secret"
+        in: "path"
+        description: "Secret for item to check-out"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/InventoryItem"
+  /users/{secret}/assignation:
+    post:
+      tags:
+      - "users"
+      summary: "Check-out an item"
+      description: ""
+      operationId: "checkOut"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "secret"
+        in: "path"
+        description: "Secret for item to check-out"
+        required: true
+        type: "string"
+        format: "uuid"
+      - in: "body"
+        name: "body"
+        description: "Details of the user for the check-out"
+        required: true
+        schema:
+          $ref: "#/definitions/AssignationUpdate"
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: "#/definitions/Assignation"
+        403:
+          description: "Assignation already check-out"
+        
+    delete:
+      tags:
+      - "users"
+      summary: "Deletes a location"
+      description: ""
+      operationId: "checkIn"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "secret"
+        in: "path"
+        description: "Secret for item to check-in"
+        required: true
+        type: "string"
+        format: "uuid"
+      responses:
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "Item not found"
+      security:
+      - courageous_auth:
+        - "write:pets"
+  /users/{secret}/location:
+    post:
+      tags:
+      - "users"
+      summary: "Track location"
+      description: ""
+      operationId: "trackLocation"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "secret"
+        in: "path"
+        description: "Secret for item to locate"
+        required: true
+        type: "string"
+        format: "uuid"
+      - in: "body"
+        name: "body"
+        description: "Location information"
+        required: true
+        schema:
+          $ref: "#/definitions/LocationUpdate"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Location"
+        403:
+          description: "Assignation not longer checked-out. You should stop sending location information."
+securityDefinitions:
+  courageous_auth:
+    type: "oauth2"
+    authorizationUrl: "http://petstore.swagger.io/oauth/dialog"
+    flow: "implicit"
+    scopes:
+      write:pets: "modify pets in your account"
+      read:pets: "read your pets"
+definitions:
+  InventoryItem:
+    type: "object"
+    required:
+    - "name"
+    properties:
+      id:
+        type: "string"
+        format: "uuid"
+      name:
+        type: "string"
+        example: "My item #1"
+      type:
+        type: "string"
+        example: "Kind of item"
+  Assignation:
+    type: "object"
+    properties:
+      inventoryItemId:
+        type: "string"
+        format: "uuid"
+      secret:
+        type: "string"
+        format: "uuid"
+      userName:
+        type: "string"
+        example: "John Doe"
+      userPhone:
+        type: "string"
+        example: "+1234567890"
+      checkedOut:
+        type: "boolean"
+      timestamp:
+        type: "integer"
+  AssignationUpdate:
+    type: "object"
+    properties:
+      userName:
+        type: "string"
+        example: "John Doe"
+      userPhone:
+        type: "string"
+        example: "+1234567890"
+  Location:
+    type: "object"
+    required:
+    - "inventoryItemId"
+    properties:
+      inventoryItemId:
+        type: "string"
+        format: "uuid"
+      latitude:
+        type: "number"
+      longitude:
+        type: "number"
+      timestamp:
+        type: "integer"
+  LocationUpdate:
+    type: "object"
+    required:
+    - "latitude"
+    - "longitude"
+    properties:
+      latitude:
+        type: "number"
+      longitude:
+        type: "number"
+externalDocs:
+  description: "Project repository"
+  url: "http://swagger.io"

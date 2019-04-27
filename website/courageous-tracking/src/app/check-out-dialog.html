@@ -1,0 +1,15 @@
+<h1 mat-dialog-title>Check-out</h1>
+<div mat-dialog-content>
+    Please scan the following barcode in the app:
+    <ngx-qrcode 
+      qrc-element-type="url" 
+      [qrc-value] = "data.secret"
+      qrc-errorCorrectionLevel = "L">
+</ngx-qrcode>
+</div>
+<div mat-dialog-actions>
+    <button mat-button mat-dialog-close>
+        <mat-icon>done</mat-icon>
+        Done
+    </button>
+</div>

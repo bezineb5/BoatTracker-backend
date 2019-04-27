@@ -1,0 +1,245 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: 'AWS::Serverless-2016-10-31'
+Description: Courageous Sailing app serverless back-end
+Globals:
+  Api:
+    EndpointConfiguration: REGIONAL
+Resources:
+  CourageousAppFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: 'courageous.handlers.StreamLambdaHandler::handleRequest'
+      Runtime: java8
+      CodeUri: target/courageous-server-1.0-SNAPSHOT.jar
+      MemorySize: 512
+      Role: !GetAtt 
+        - LambdaToDynamoDBTableRole
+        - Arn
+      Timeout: 20
+      Events:
+        GetResource:
+          Type: Api
+          Properties:
+            Path: '/{proxy+}'
+            Method: any
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 83cd5ebc-3a37-45c0-82dd-ddfa2cdae4a5
+    DependsOn:
+      - LambdaToDynamoDBTableRole
+      - DDBInventoryTable
+      - DDBAssignationsTable
+      - DDBLocationsTable
+  WebsiteBucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      AccessControl: PublicRead
+      BucketName: !Ref HostingBucket
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: error.html
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: b928cc06-7245-43c0-927b-0cc3733320e3
+  LambdaToDynamoDBTableRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: LambdaWriteCWLogs
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Sid: AllowLogging
+                Effect: Allow
+                Action:
+                  - 'logs:CreateLogGroup'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                Resource: '*'
+        - PolicyName: LambdaDDB_Table_ReadWrite
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Sid: AllowDynamoDB
+                Action:
+                  - 'dynamodb:PutItem'
+                  - 'dynamodb:DeleteItem'
+                  - 'dynamodb:GetItem'
+                  - 'dynamodb:Scan'
+                  - 'dynamodb:Query'
+                  - 'dynamodb:UpdateItem'
+                Effect: Allow
+                Resource:
+                  - 'arn:aws:dynamodb:*:*:table/*'
+                  - 'arn:aws:dynamodb:*:*:table/*/index/*'
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: e06e33b1-4fc9-444b-ab5c-ecdaf9c08732
+  DDBInventoryTable:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: Id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: Id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: '2'
+        WriteCapacityUnits: '1'
+      TableName: Inventory
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 9f79adf3-a5a5-4d5c-806e-e76315e2b999
+    DependsOn:
+      - LambdaToDynamoDBTableRole
+  DDBAssignationsTable:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: InventoryItemId
+          AttributeType: S
+        - AttributeName: Secret
+          AttributeType: S
+      GlobalSecondaryIndexes:
+        - IndexName: Secret-index
+          KeySchema:
+            - AttributeName: Secret
+              KeyType: HASH
+          Projection:
+            ProjectionType: KEYS_ONLY
+          ProvisionedThroughput:
+            ReadCapacityUnits: 1
+            WriteCapacityUnits: 1
+      KeySchema:
+        - AttributeName: InventoryItemId
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: '2'
+        WriteCapacityUnits: '2'
+      TableName: Assignations
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 806a0c3a-24a2-4164-981b-d9091042e86d
+    DependsOn:
+      - LambdaToDynamoDBTableRole
+  DDBLocationsTable:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: InventoryItemId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: InventoryItemId
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: '5'
+        WriteCapacityUnits: '5'
+      TableName: Locations
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: d137eef3-b36c-4812-b677-1eb077162b21
+    DependsOn:
+      - LambdaToDynamoDBTableRole
+Outputs:
+  CourageousAppApiURL:
+    Description: URL for application
+    Value: !Sub >-
+      https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/courageous
+    Export:
+      Name: CourageousAppApiURL
+  WebsiteURL:
+    Value: !GetAtt 
+      - WebsiteBucket
+      - WebsiteURL
+    Description: URL for serverless website hosted on S3
+    Export:
+      Name: CourageousAppWebsiteURL
+Metadata:
+  'AWS::CloudFormation::Designer':
+    83cd5ebc-3a37-45c0-82dd-ddfa2cdae4a5:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 40
+        'y': 60
+      z: 1
+      embeds: []
+      dependson:
+        - e06e33b1-4fc9-444b-ab5c-ecdaf9c08732
+        - 9f79adf3-a5a5-4d5c-806e-e76315e2b999
+        - 806a0c3a-24a2-4164-981b-d9091042e86d
+        - d137eef3-b36c-4812-b677-1eb077162b21
+    b928cc06-7245-43c0-927b-0cc3733320e3:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 460
+        'y': 60
+      z: 0
+      embeds: []
+    9f79adf3-a5a5-4d5c-806e-e76315e2b999:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 160
+        'y': 150
+      z: 0
+      embeds: []
+      isassociatedwith:
+        - 9f79adf3-a5a5-4d5c-806e-e76315e2b999
+      dependson:
+        - e06e33b1-4fc9-444b-ab5c-ecdaf9c08732
+    806a0c3a-24a2-4164-981b-d9091042e86d:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 260
+        'y': 150
+      z: 0
+      embeds: []
+      isassociatedwith:
+        - 806a0c3a-24a2-4164-981b-d9091042e86d
+      dependson:
+        - e06e33b1-4fc9-444b-ab5c-ecdaf9c08732
+    d137eef3-b36c-4812-b677-1eb077162b21:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 360
+        'y': 150
+      z: 0
+      embeds: []
+      isassociatedwith:
+        - d137eef3-b36c-4812-b677-1eb077162b21
+      dependson:
+        - e06e33b1-4fc9-444b-ab5c-ecdaf9c08732
+    e06e33b1-4fc9-444b-ab5c-ecdaf9c08732:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 260
+        'y': 250
+      z: 0
+      embeds: []
+Parameters:
+  HostingBucket:
+    Description: S3 Bucket name for where the website should be hosted
+    Type: String
+    Default: courageous-app-hosting
