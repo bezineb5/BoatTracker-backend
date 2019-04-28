@@ -239,7 +239,7 @@ paths:
       parameters:
       - name: "itemId"
         in: "path"
-        description: "ID of item to return"
+        description: "ID of item to locate"
         required: true
         type: "string"
         format: "uuid"
@@ -401,9 +401,9 @@ definitions:
       name:
         type: "string"
         example: "My item #1"
-      type:
-        type: "string"
-        example: "Kind of item"
+      color:
+        type: "integer"
+        example: "Color of the item, to be converted to hexadecimal (HTML style)"
   Assignation:
     type: "object"
     properties:

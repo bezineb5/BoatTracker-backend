@@ -117,7 +117,7 @@ export class AppComponent {
       this.updateAssignations();
 
       if (item) {
-        this.snackBar.open('Checked-in: ' + item.name, "OK", {
+        this.snackBar.open('Checked-in: ' + item.name, "DISMISS", {
           duration: 1500
         });
       }
@@ -130,31 +130,42 @@ export class AppComponent {
 
   addMarkers(): void {
     let newMarkers: Layer[] = [];
+    let width = 36;
 
     // Base location marker: "home"
     newMarkers.push(marker(this.homeCoordinates,
       {
         icon: divIcon({
-          html: '<i class="material-icons md-24">home</i>',
-          className: 'my-div-icon',
-          iconAnchor: [12, 24],
+          html: '<i class="map-div-icon material-icons md-24" style="color:red">home</i>',
+          className: 'map-icon',
+          iconAnchor: [width/2, width],
         })
       }));
 
     // Marker for the items
     this.locations.forEach((loc) => {
       let itemId = loc.inventoryItemId;
+      let item = this.getItemWithUUID(itemId);
+      if (!item) {
+        return;
+      }
+      let itemColor: string;
+      if (item.color) {
+        itemColor = "#" + item.color.toString(16);
+      } else {
+        itemColor = "black";
+      }
+
       let mark = marker([loc.latitude, loc.longitude],
         {
           icon: divIcon({
-            html: '<i class="material-icons md-24">person_pin</i>',
-            className: 'my-div-icon',
-            iconAnchor: [12, 24],
+            html: '<i class="map-div-icon material-icons md-24" style="color:' + itemColor + '">person_pin</i>',
+            className: 'map-icon',
+            iconAnchor: [width/2, width],
           })
         });
 
       mark.bindPopup((m) => {
-        let item = this.getItemWithUUID(itemId);
         let assi = this.assignations.get(itemId);
 
         let itemName = (item) ? item.name : "Unknown";

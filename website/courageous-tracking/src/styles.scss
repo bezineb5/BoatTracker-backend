@@ -9,3 +9,9 @@ body {
 .basic-container {
   padding: 30px;
 }
+
+// For unknown reason, it cannot be in the component CSS
+.map-div-icon {
+  background-color:#FFFFFF99;
+  font-size: 36px;
+}

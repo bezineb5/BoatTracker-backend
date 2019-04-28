@@ -101,3 +101,13 @@ Temporary Items
 
 # Custom rules (everything added below won't be overriden by 'Generate .gitignore File' if you use 'Update' option)
 
+# Intermediate files, should be regenerated
+output-cloudformation.yaml
+/website/api-services
+
+# Java files
+.classpath
+.factorypath
+.project
+/target
+.settings/
