@@ -91,6 +91,18 @@ Resources:
       AttributeDefinitions:
         - AttributeName: Id
           AttributeType: S
+        - AttributeName: DeviceId
+          AttributeType: S
+      GlobalSecondaryIndexes:
+        - IndexName: DeviceId-index
+          KeySchema:
+            - AttributeName: DeviceId
+              KeyType: HASH
+          Projection:
+            ProjectionType: KEYS_ONLY
+          ProvisionedThroughput:
+            ReadCapacityUnits: 1
+            WriteCapacityUnits: 1
       KeySchema:
         - AttributeName: Id
           KeyType: HASH

@@ -404,6 +404,9 @@ definitions:
       color:
         type: "integer"
         example: "Color of the item, to be converted to hexadecimal (HTML style)"
+      deviceId:
+        type: "string"
+        example: "FFFFFF"
   Assignation:
     type: "object"
     properties:

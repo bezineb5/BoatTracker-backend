@@ -17,11 +17,13 @@ import org.apache.logging.log4j.Logger;
 import courageous.models.Assignation;
 import courageous.models.InventoryItem;
 import courageous.webservices.exceptions.BaseException;
-import courageous.webservices.resources.AssignationResources;
-import courageous.webservices.resources.InventoryResources;
-import courageous.webservices.resources.LocationResources;
 import courageous.webservices.messages.AssignationUpdate;
 import courageous.webservices.messages.LocationUpdate;
+import courageous.webservices.messages.SigfoxMessage;
+import courageous.webservices.resources.AssignationResources;
+import courageous.webservices.resources.DeviceResources;
+import courageous.webservices.resources.InventoryResources;
+import courageous.webservices.resources.LocationResources;
 
 public class Router {
     private static final Logger log = LogManager.getLogger(Router.class);
@@ -50,6 +52,7 @@ public class Router {
         registerAssignationResources(transformer, objectMapper);
         registerLocationResources(transformer, objectMapper);
         registerUserResources(transformer, objectMapper);
+        registerDevicesResources(transformer, objectMapper);
     }
 
     /**
@@ -186,4 +189,20 @@ public class Router {
             return LocationResources.create(secret, newLocation);
         }, transformer);
     }
+
+    /**
+     * We use a different URL, for access control purposes
+     * 
+     * @param transformer
+     * @param objectMapper
+     */
+    private void registerDevicesResources(JsonTransformer transformer, ObjectMapper objectMapper) {
+
+        // Track location using a Sigfox Oyster
+        post("/devices/sigfox-oyster/location", (request, response) -> {
+            SigfoxMessage deviceMessage = objectMapper.readValue(request.body(), SigfoxMessage.class);
+            return DeviceResources.create(deviceMessage);
+        }, transformer);
+    }
+
 }
